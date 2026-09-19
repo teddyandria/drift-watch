@@ -10,8 +10,6 @@ from pathlib import Path
 import json
 from datetime import datetime
 
-
-
 #   etape 1 : charger le csv
 def load_data(file_path) -> pd.DataFrame:
     """
