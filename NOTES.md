@@ -7,3 +7,6 @@ Le dataframe comporte 21 colonnes pour 1000 lignes. donc 20 features et 1 cible 
 Taux de défaut : 30% "bad" (300 dossiers considérés comme "bad" sur 1000).
 
 
+Performances : 
+AUC: 0.8040476190476191
+Gini: 0.6080952380952382
