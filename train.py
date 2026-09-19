@@ -7,6 +7,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from pathlib import Path
+import json
+from datetime import datetime
 
 
 
@@ -97,8 +99,12 @@ def train_model(X_train, y_train, X_test, y_test, preprocessor) -> Pipeline:
 
     print(f"AUC: {auc}")
     print(f"Gini: {gini}")
-
-    return pipeline
+    result = {
+        "AUC": auc,
+        "Gini": gini,
+        "pipeline": pipeline
+    }
+    return result
 
 #joblib permet de sauvegarder le modèle entrainé dans un fichier .joblib pour pouvoir le réutiliser plus tard sans avoir à le réentrainer.
 #sauvegarde du modèle entrainé dans un fichier .joblib
@@ -124,7 +130,28 @@ def save_model(pipeline, X_test, y_test)-> None:
 
     return None
 
+def save_mertrics(auc, variables):
+    """
+    Save the model metrics to a JSON file.
+    Args:
+        auc (float): The AUC score of the model.
+        variables (list): The list of feature names used in the model.
+    Returns:
+        None
+    """
+    #permet de créer le dossier artifacts s'il n'existe pas déjà, pour stocker les métriques du modèle.
+    Path("artifacts").mkdir(parents=True, exist_ok=True)
+    metrics = {
+        "version": "v1.0",
+        "AUC": auc,
+        "variables": variables,
+        "trained_at": datetime.now().isoformat()
+    }
+    with open("artifacts/model_meta.json", "w") as f:
+        json.dump(metrics, f, indent=2)
+
 def main():
+
     # Load the dataset
     df = load_data("data/raw.csv")
 
@@ -138,9 +165,10 @@ def main():
     preprocessor = preprocess_data(X_train)
 
     # Train the model
-    pipeline = train_model(X_train, y_train, X_test, y_test, preprocessor)
+    result_pipeline = train_model(X_train, y_train, X_test, y_test, preprocessor)
 
     # Save the trained model
-    save_model(pipeline, X_test, y_test)
+    save_model(result_pipeline["pipeline"], X_test, y_test)
+    save_mertrics(result_pipeline["AUC"], list(X.columns))
 
 main()
